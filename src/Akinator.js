@@ -24,7 +24,7 @@ class Akinator {
     this.sid = 0;
     this.step_last = undefined;
     this.guesses = [];
-    this.forceEnd = false; // Flag untuk menghentikan paksa jika diperlukan
+    this.forceEnd = false;
   }
 
   async start() {
@@ -40,14 +40,27 @@ class Akinator {
 
     this.session = session;
     this.signature = signature;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl || `https://${this.region.split('_')[0]}.akinator.com`; // FIX: Ensure baseUrl exists
     this.sid = sid;
     this.question = question;
+    
+    console.log(`[Akinator] Started with baseUrl: ${this.baseUrl}`);
   }
 
   async answer(answ) {
+    // Ensure baseUrl is set
+    if (!this.baseUrl) {
+      const lang = this.region.split('_')[0];
+      this.baseUrl = `https://${lang}.akinator.com`;
+      console.log(`[Akinator] baseUrl auto-set to: ${this.baseUrl}`);
+    }
+    
+    // Validate URL
+    const url = `${this.baseUrl}/answer`;
+    console.log(`[Akinator] Calling URL: ${url}`);
+    
     const response = await requestAki(
-      `${this.baseUrl}/answer`,
+      url,
       {
         step: this.step,
         progression: this.progress,
@@ -62,6 +75,7 @@ class Akinator {
     );
 
     if (response.completion !== "OK") {
+      console.log(`[Akinator] Response completion: ${response.completion}`);
       throw new Error("Failed making request, completion: " + response.completion);
     }
 
@@ -102,16 +116,18 @@ class Akinator {
         }
       }
       
-      console.log(`🎯 Akinator found ${this.guesses.length} guess(es)!`);
+      console.log(`[Akinator] Found ${this.guesses.length} guess(es)!`);
     } else {
       // Update progress dan question
       this.step = parseInt(response.step) || this.step + 1;
       this.progress = parseFloat(response.progression) || this.progress;
       this.question = response.question || this.question;
       
+      console.log(`[Akinator] Step: ${this.step}, Progress: ${this.progress}`);
+      
       // Force win detection jika progress sangat tinggi (>95%) tapi belum win
       if (this.progress > 95 && !this.isWin) {
-        console.log(`⚠️  High progress (${this.progress}%) but no win yet. Continuing...`);
+        console.log(`[Akinator] High progress (${this.progress}%) but no win yet.`);
       }
     }
     
@@ -119,8 +135,17 @@ class Akinator {
   }
 
   async cancelAnswer() {
+    // Ensure baseUrl is set
+    if (!this.baseUrl) {
+      const lang = this.region.split('_')[0];
+      this.baseUrl = `https://${lang}.akinator.com`;
+    }
+    
+    const url = `${this.baseUrl}/cancel_answer`;
+    console.log(`[Akinator] Canceling at URL: ${url}`);
+    
     const response = await requestAki(
-      `${this.baseUrl}/cancel_answer`,
+      url,
       {
         step: this.step,
         progression: this.progress,
@@ -135,6 +160,8 @@ class Akinator {
     this.step = parseInt(response.step);
     this.progress = parseFloat(response.progression);
     this.question = response.question;
+    
+    console.log(`[Akinator] Canceled to Step: ${this.step}, Progress: ${this.progress}`);
     
     return response;
   }
