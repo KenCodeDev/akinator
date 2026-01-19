@@ -1,22 +1,21 @@
 {
-  "name": "@aqul/akinator-api",
-  "author": "aqulzz",
-  "description": "An Simple API for Akinator",
-  "version": "3.0.1",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "name": "@kenichi-ichi/akinator-api",
+  "author": "KenCodeDev",
+  "description": "Simple API for Akinator",
+  "version": "0.0.1",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc --build"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zennn08/akinator-api.git"
+    "url": "git+https://github.com/KenCodeDev/akinator.git"
   },
   "bugs": {
-    "url": "https://github.com/zennn08/akinator-api/issues"
+    "url": "https://github.com/KenCodeDev/akinator/issues"
   },
-  "homepage": "https://github.com/zennn08/akinator-api#readme",
+  "homepage": "https://github.com/KenCodeDev/akinator#readme",
   "keywords": [
     "akinator",
     "aki",
@@ -24,13 +23,7 @@
     "akinator api"
   ],
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "undici": "^7.11.0"
-  },
-  "devDependencies": {
-    "@types/cheerio": "^0.22.35",
-    "@typescript-eslint/parser": "^7.7.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "cheerio": "^1.1.2",
+    "undici": "^7.18.2"
   }
 }

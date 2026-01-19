@@ -1,4 +1,4 @@
-export const regions = [
+const regions = [
   "en",
   "en_objects",
   "en_animals",
@@ -23,12 +23,15 @@ export const regions = [
   "ru",
   "tr",
   "id"
-] as const
+];
 
-export type region = (typeof regions)[number]
-
-export const themes = {
+const themes = {
   characters: 1,
   objects: 2,
   animals: 14
-}
+};
+
+module.exports = {
+  regions,
+  themes
+};
