@@ -40,11 +40,9 @@ class Akinator {
 
     this.session = session;
     this.signature = signature;
-    this.baseUrl = baseUrl || `https://${this.region.split('_')[0]}.akinator.com`; // FIX: Ensure baseUrl exists
+    this.baseUrl = baseUrl || `https://${this.region.split('_')[0]}.akinator.com`;
     this.sid = sid;
     this.question = question;
-    
-    console.log(`[Akinator] Started with baseUrl: ${this.baseUrl}`);
   }
 
   async answer(answ) {
@@ -52,12 +50,9 @@ class Akinator {
     if (!this.baseUrl) {
       const lang = this.region.split('_')[0];
       this.baseUrl = `https://${lang}.akinator.com`;
-      console.log(`[Akinator] baseUrl auto-set to: ${this.baseUrl}`);
     }
     
-    // Validate URL
     const url = `${this.baseUrl}/answer`;
-    console.log(`[Akinator] Calling URL: ${url}`);
     
     const response = await requestAki(
       url,
@@ -75,7 +70,6 @@ class Akinator {
     );
 
     if (response.completion !== "OK") {
-      console.log(`[Akinator] Response completion: ${response.completion}`);
       throw new Error("Failed making request, completion: " + response.completion);
     }
 
@@ -84,8 +78,16 @@ class Akinator {
       this.step_last = response.step_last_proposition;
     }
 
-    // Deteksi win condition dari Akinator
-    if (response.name_proposition || response.id_proposition) {
+    // Update progress dan question terlebih dahulu
+    this.step = parseInt(response.step) || this.step + 1;
+    this.progress = parseFloat(response.progression) || this.progress;
+    this.question = response.question || this.question;
+    
+    const hasWinCompletion = response.completion === "WIN" || response.completion === "OK WITH WIN";
+    const hasProposition = response.name_proposition || response.id_proposition;
+    const hasHighProgress = this.progress > 95;
+    
+    if ((hasProposition && hasHighProgress) || hasWinCompletion) {
       this.isWin = true;
       this.sugestion_name = response.name_proposition || "";
       this.sugestion_desc = response.description_proposition || "";
@@ -111,23 +113,9 @@ class Akinator {
             description: this.sugestion_desc,
             photo: this.sugestion_photo,
             id_proposition: response.id_proposition,
-            probability: response.proba || response.probability || "85%"
+            probability: response.proba || response.probability || `${Math.round(this.progress)}%`
           });
         }
-      }
-      
-      console.log(`[Akinator] Found ${this.guesses.length} guess(es)!`);
-    } else {
-      // Update progress dan question
-      this.step = parseInt(response.step) || this.step + 1;
-      this.progress = parseFloat(response.progression) || this.progress;
-      this.question = response.question || this.question;
-      
-      console.log(`[Akinator] Step: ${this.step}, Progress: ${this.progress}`);
-      
-      // Force win detection jika progress sangat tinggi (>95%) tapi belum win
-      if (this.progress > 95 && !this.isWin) {
-        console.log(`[Akinator] High progress (${this.progress}%) but no win yet.`);
       }
     }
     
@@ -142,7 +130,6 @@ class Akinator {
     }
     
     const url = `${this.baseUrl}/cancel_answer`;
-    console.log(`[Akinator] Canceling at URL: ${url}`);
     
     const response = await requestAki(
       url,
@@ -160,8 +147,6 @@ class Akinator {
     this.step = parseInt(response.step);
     this.progress = parseFloat(response.progression);
     this.question = response.question;
-    
-    console.log(`[Akinator] Canceled to Step: ${this.step}, Progress: ${this.progress}`);
     
     return response;
   }
