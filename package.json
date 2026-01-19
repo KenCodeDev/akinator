@@ -2,7 +2,7 @@
   "name": "@kenichi_ichi/akinator-api",
   "author": "KenCodeDev",
   "description": "Simple API for Akinator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
